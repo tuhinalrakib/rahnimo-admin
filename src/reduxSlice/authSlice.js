@@ -7,10 +7,6 @@ export const AUTH_STATUS = Object.freeze({
   LOADING: "loading",
 })
 
-/**
- * Centralized initial state
- * Useful for full reset (logout, token expiry)
- */
 const createInitialState = () => ({
   accessToken: null,
   status: AUTH_STATUS.IDLE,
@@ -24,7 +20,10 @@ const authSlice = createSlice({
       state.accessToken = action.payload ?? null
       state.status = action.payload ? AUTH_STATUS.AUTHENTICATED : AUTH_STATUS.UNAUTHENTICATED
     },
-    clearAuth: createInitialState(),
+    clearAuth: (state) => {
+      state.accessToken = null;
+      state.status = AUTH_STATUS.IDLE;
+    },
     setAuthStatus: (state, action) => {
       state.status = action.payload;
     },

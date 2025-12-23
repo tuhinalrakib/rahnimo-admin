@@ -1,4 +1,5 @@
 "use client"
+import StatsCards from '@/components/dashboard/StatsCards';
 import { Card, CardContent, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
@@ -13,8 +14,10 @@ const DashboardClientPage = () => {
     }, [user, router])
 
     return (
-        <div>
-            
+        <div className='space-y-6 p-4 md:p-6'>
+            <h1 className="text-2xl font-semibold">My Dashboard</h1>
+            <StatsCards />
+
             <Card className="shadow-md hover:shadow-lg transition">
                 <CardContent>
                     <Typography variant="h6" className="font-bold text-primary">

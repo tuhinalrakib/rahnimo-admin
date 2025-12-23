@@ -27,7 +27,10 @@ const userSlice = createSlice({
     setUserStatus: (state, action) => {
       state.status = action.payload;
     },
-    clearUser: createInitialState()
+    clearUser: (state)=>{
+      state.user = null;
+      state.status = USER_STATUS.IDLE
+    }
   },
 });
 

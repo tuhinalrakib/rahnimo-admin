@@ -1,5 +1,6 @@
 import ReduxProvider from "@/wrapper/ReduxProvider";
 import "./globals.css";
+import QueryProvider from "@/wrapper/QueryProvider";
 
 export const metadata = {
   title: {
@@ -21,7 +22,9 @@ export default function RootLayout({ children }) {
         className={` antialiased`}
       >
         <ReduxProvider>
-          {children}
+          <QueryProvider>
+            {children}
+          </QueryProvider>
         </ReduxProvider>
       </body>
     </html>
