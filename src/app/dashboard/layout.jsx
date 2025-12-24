@@ -35,6 +35,10 @@ const DashboardLayout = ({ children }) => {
   }, []);
 
   if (!mounted) return null;
+  const avatar =
+  user?.image && user.image.startsWith("http")
+    ? user.image
+    : "/avatar.png";
 
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
@@ -58,7 +62,7 @@ const DashboardLayout = ({ children }) => {
       {/* User Info */}
       <Box className="p-6 border-b flex flex-col items-center gap-2">
         <Image
-          src={user?.image}
+          src={avatar}
           width={70}
           height={70}
           alt={user?.name || "User"}
@@ -102,7 +106,7 @@ const DashboardLayout = ({ children }) => {
 
         <ListItemButton
           component={Link}
-          href="/dashboard/manageUsers"
+          href="/dashboard/user-management"
           className="hover:bg-blue-300  text-sm py-3 transition-none"
           sx={{ borderBottom: "1px solid #ADADAD" }}
         >

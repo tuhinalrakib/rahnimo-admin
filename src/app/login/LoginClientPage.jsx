@@ -18,6 +18,8 @@ const LoginClientPage = () => {
     const user = useSelector((state) => state.user.user)
     const router = useRouter()
     const dispatch = useDispatch()
+    const status = useSelector((state)=> state.auth.status)
+    console.log(status)
 
     const {
         handleSubmit,
@@ -29,7 +31,7 @@ const LoginClientPage = () => {
         if (user) router.replace("/dashboard")
     }, [user, router])
 
-    if (isLoading) return <Spinner />
+    if ( status === "loading" || isLoading) return <Spinner />
 
     const onSubmit = async (data) => {
         dispatch(setAuthStatus("loading"))
