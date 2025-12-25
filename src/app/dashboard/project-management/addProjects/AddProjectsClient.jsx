@@ -15,20 +15,6 @@ const categories = [
 ]
 
 export default function AddProjectsClient() {
-    //   const [form, setForm] = useState({
-    //     projectTitle: "",
-    //     category: "",
-    //     location: "",
-    //     areaSize: "",
-    //     budgetRange: "",
-    //     completionTime: "",
-    //     designStyle: "",
-    //     shortDescription: "",
-    //     clientReview: "",
-    //     clientRating: 0,
-    //     featured: false,
-    //   });
-
     const {
         register,
         handleSubmit,
@@ -38,15 +24,10 @@ export default function AddProjectsClient() {
         clearErrors,
         formState: { errors },
     } = useForm({
-        defaultValues: { category: "" } 
+        defaultValues: { category: "" }
     });
 
     const { uploadImage, imageURL, uploading } = useCloudinaryUpload()
-
-    //   const handleChange = (e) => {
-    //     const { name, value, type, checked } = e.target;
-    //     setForm({ ...form, [name]: type === "checkbox" ? checked : value });
-    //   };
 
     const onSubmit = async (data) => {
         console.log(data);
@@ -60,7 +41,7 @@ export default function AddProjectsClient() {
 
     return (
         <div className="min-h-screen px-1 py-3 md:p-5 lg:p-10">
-            <Card className="max-w-4xl mx-auto">
+            <Card >
                 <CardContent className="bg-white backdrop-blur-lg rounded-xl shadow p-6">
                     <Typography
                         variant="h5"
@@ -143,7 +124,7 @@ export default function AddProjectsClient() {
                         />
 
                         {/* ✅ Image Upload Field */}
-                        <div className="relative">
+                        {/* <div className="relative">
                             <FaImage
                                 className="text-[#4da3d1] absolute left-1.5 top-2.5"
                                 size={22}
@@ -173,12 +154,11 @@ export default function AddProjectsClient() {
                         <input
                             type="hidden"
                             {...register("image", { required: "Image is required" })}
-                        />
+                        /> */}
 
                         <TextField
                             className="w-full px-4 bg-[#fcfcfc] pl-10 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
                             label="Design Style"
-                            name=""
                             {...register("designStyle", { required: "Design Style is required" })}
                             error={!!errors.name}
                             helperText={errors.name?.message}
@@ -188,10 +168,9 @@ export default function AddProjectsClient() {
                         {/* Description */}
                         <TextField
                             label="Short Description"
-                            name="shortDescription"
                             {...register("shortDescription", { required: "Short Description is required" })}
-                            error={!!errors.name}
-                            helperText={errors.name?.message}
+                            error={!!errors.shortDescription}
+                            helperText={errors.shortDescription?.message}
                             fullWidth
                             multiline
                             rows={3}
@@ -199,16 +178,44 @@ export default function AddProjectsClient() {
                         />
 
                         {/* Review */}
-                        {/* <TextField
+                        <TextField
                             label="Client Review"
-                            name="clientReview"
-                            value={form.clientReview}
-                            onChange={handleChange}
+                            {...register("clientReview", { required: "Design Style is required" })}
+                            error={!!errors.clientReview}
+                            helperText={errors.clientReview?.message}
                             fullWidth
-                            multiline
-                            rows={3}
-                            className="md:col-span-2"
+                        />
+
+                        {/* <Rating
+                            label="Client Review"
+                            error={!!errors.clientReview}
+                            helperText={errors.clientReview?.message}
+                            fullWidth
                         /> */}
+
+                        <div >
+                            <p className="mb-1 text-sm">Client Rating</p>
+
+                            <Controller
+                                name="clientRating"
+                                control={control}
+                                rules={{ required: "Client Rating is required" }}
+                                render={({ field }) => (
+                                    <Rating
+                                        {...field}
+                                        value={field.value || 0}
+                                        onChange={(_, value) => field.onChange(value)}
+                                    />
+                                )}
+                            />
+
+                            {errors.clientRating && (
+                                <p className="text-red-500 text-sm mt-1">
+                                    {errors.clientRating.message}
+                                </p>
+                            )}
+                        </div>
+
 
                         {/* Submit Button */}
                         <div className="md:col-span-2 flex justify-center mt-4">
