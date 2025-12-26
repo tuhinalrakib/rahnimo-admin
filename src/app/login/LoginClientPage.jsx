@@ -19,7 +19,6 @@ const LoginClientPage = () => {
     const router = useRouter()
     const dispatch = useDispatch()
     const status = useSelector((state)=> state.auth.status)
-    console.log(status)
 
     const {
         handleSubmit,

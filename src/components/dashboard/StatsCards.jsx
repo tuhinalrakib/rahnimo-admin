@@ -29,7 +29,6 @@ const StatsCards = () => {
     queryKey: ["totalUsers"],
     queryFn: async () => {
       const res = await api.get('/admin/users/usersCount');
-      console.log(res.data)
       return res.data;
     }
   });

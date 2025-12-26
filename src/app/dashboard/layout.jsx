@@ -26,7 +26,6 @@ const DashboardLayout = ({ children }) => {
   const user = useSelector((state) => state.user.user)
   const token = useSelector((state) => state.auth.accessToken);
   const dispatch = useDispatch()
-  console.log(token)
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -97,7 +96,7 @@ const DashboardLayout = ({ children }) => {
 
         <ListItemButton
           component={Link}
-          href="/dashboard/reports"
+          href="/dashboard/team-management"
           className="hover:bg-blue-300  text-sm py-3 transition-none"
           sx={{ borderBottom: "1px solid #ADADAD" }}
         >

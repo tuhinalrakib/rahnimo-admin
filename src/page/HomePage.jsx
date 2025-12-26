@@ -8,9 +8,7 @@ const HomePage = () => {
     const user = useSelector((state)=> state.user.user)
     const authStatus = useSelector((state)=> state.auth.status)
     const router = useRouter()
-    if(authStatus === "loading") return <Spinner />
-    console.log(authStatus)
-
+    
     useEffect(()=>{
         if(!user){
             router.push("/login")
@@ -18,7 +16,8 @@ const HomePage = () => {
             router.push("/dashboard")
         }
     },[user, router])
-
+    
+    if(authStatus === "loading") return <Spinner />
 
     return (
         <div>

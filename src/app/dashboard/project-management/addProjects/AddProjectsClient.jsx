@@ -6,6 +6,9 @@ import { Controller, useForm } from "react-hook-form";
 import useCloudinaryUpload from "@/hooks/useCloudinaryUpload";
 import Image from "next/image";
 import { FaImage } from "react-icons/fa";
+import api from "@/utils/axiosInstance";
+import Swal from "sweetalert2";
+import Spinner from "@/components/ui/Spinner";
 
 const categories = [
     "Residential",
@@ -19,18 +22,35 @@ export default function AddProjectsClient() {
         register,
         handleSubmit,
         reset,
-        setValue,
         control,
-        clearErrors,
         formState: { errors },
     } = useForm({
         defaultValues: { category: "" }
     });
 
-    const { uploadImage, imageURL, uploading } = useCloudinaryUpload()
+    const { uploadImage, image, uploading } = useCloudinaryUpload()
 
     const onSubmit = async (data) => {
-        console.log(data);
+        try {
+            const projectData = {
+                ...data,
+                image
+            }
+            const res = api.post("/admin/projects", projectData)
+            if (res?.data?.success) {
+                Swal.fire({
+                    position: "center",
+                    icon: "success",
+                    title: "Add Products Successfully!!",
+                    showConfirmButton: false,
+                    timer: 1500,
+                });
+                reset();
+                router.push("/dashboard")
+            }
+        } catch (error) {
+            toast.error("❌ Failed to add product!");
+        }
     };
 
     const handleImageUpload = async (e) => {
@@ -38,6 +58,8 @@ export default function AddProjectsClient() {
         if (!file) return;
         await uploadImage(file)
     };
+    
+    if(uploading) return <Spinner />
 
     return (
         <div className="min-h-screen px-1 py-3 md:p-5 lg:p-10">
@@ -124,7 +146,7 @@ export default function AddProjectsClient() {
                         />
 
                         {/* ✅ Image Upload Field */}
-                        {/* <div className="relative">
+                        <div className="relative">
                             <FaImage
                                 className="text-[#4da3d1] absolute left-1.5 top-2.5"
                                 size={22}
@@ -140,9 +162,9 @@ export default function AddProjectsClient() {
                                 <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
                             )}
                             {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
-                            {imageURL && (
+                            {image && (
                                 <Image
-                                    src={imageURL}
+                                    src={image}
                                     width={20}
                                     height={20}
                                     alt="Preview"
@@ -154,7 +176,7 @@ export default function AddProjectsClient() {
                         <input
                             type="hidden"
                             {...register("image", { required: "Image is required" })}
-                        /> */}
+                        />
 
                         <TextField
                             className="w-full px-4 bg-[#fcfcfc] pl-10 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"

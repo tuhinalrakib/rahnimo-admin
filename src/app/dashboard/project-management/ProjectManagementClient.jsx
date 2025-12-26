@@ -77,7 +77,7 @@ const ProjectManagementClient = () => {
         },
         staleTime: 1000 * 60 * 5,
     });
-
+console.log(projects)
     /* ----------------------------- Delete Projects ---------------------------- */
     const deleteMutation = useMutation({
         mutationFn: (id) => api.delete(`/admin/projects/${id}`),
@@ -107,7 +107,7 @@ const ProjectManagementClient = () => {
     /* ----------------------------- Search & Pagination ------------------------ */
     const filteredProjects = useMemo(() => {
         return projects.filter((p) =>
-            p.name.toLowerCase().includes(search.toLowerCase())
+            p.projectTitle.toLowerCase().includes(search.toLowerCase())
         );
     }, [projects, search]);
 
@@ -119,7 +119,7 @@ const ProjectManagementClient = () => {
 
     /* -------------------------------- Render -------------------------------- */
 
-    // if (isLoading) return <ProjectsTableSkeleton rows={8} />;
+    if (isLoading) return <ProjectsTableSkeleton rows={8} />;
     if (isError) return <p className="text-red-500">Failed to load projects</p>;
 
     return (
@@ -151,8 +151,8 @@ const ProjectManagementClient = () => {
                             <StyledTableCell>Title</StyledTableCell>
                             <StyledTableCell>Image</StyledTableCell>
                             <StyledTableCell>Category</StyledTableCell>
-                            <StyledTableCell>Price</StyledTableCell>
-                            <StyledTableCell>Stock</StyledTableCell>
+                            <StyledTableCell>Location</StyledTableCell>
+                            <StyledTableCell>Area Size</StyledTableCell>
                             <StyledTableCell align="center">Actions</StyledTableCell>
                         </TableRow>
                     </TableHead>
@@ -169,19 +169,19 @@ const ProjectManagementClient = () => {
                         ) : (
                             paginatedProjects.map((product) => (
                                 <StyledTableRow key={product._id}>
-                                    <TableCell>{product.name}</TableCell>
+                                    <TableCell>{product.projectTitle}</TableCell>
                                     <TableCell>
                                         <Image
                                             src={product.image}
-                                            alt={product.name}
+                                            alt={product.name || "logo"}
                                             width={50}
                                             height={50}
                                             className="rounded"
                                         />
                                     </TableCell>
                                     <TableCell>{product.category}</TableCell>
-                                    <TableCell>৳ {product.price}</TableCell>
-                                    <TableCell>{product.stock}</TableCell>
+                                    <TableCell>{product.location}</TableCell>
+                                    <TableCell>{product.areaSize}</TableCell>
                                     <TableCell align="center">
                                         <div className="flex justify-center gap-3">
                                             <Button
