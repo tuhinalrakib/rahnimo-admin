@@ -46,7 +46,7 @@ const StatsCards = () => {
       title: "Total Users",
       value: totalUsers,
       icon: <FaUsers size={28} />,
-      link: "/dashboard/manageUsers",
+      link: "/dashboard/user-management",
       buttonText: "View Details"
     },
     {
@@ -54,7 +54,7 @@ const StatsCards = () => {
       // value: totalProduct,
       value: 5,
       icon: <MdProductionQuantityLimits size={28} />,
-      link: "/dashboard/manageProducts",
+      link: "/dashboard/project-management",
       buttonText: "View Details"
     },
     {

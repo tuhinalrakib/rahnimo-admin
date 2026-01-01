@@ -24,7 +24,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import { MdAddCircleOutline } from "react-icons/md";
-import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 /* -------------------------------- Styles -------------------------------- */
@@ -46,8 +45,6 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 const ProjectManagementClient = () => {
     const queryClient = useQueryClient();
-    const authStatus = useSelector((state) => state.auth.status);
-    const user = useSelector((state) => state.user.user);
     const router = useRouter();
 
     const [search, setSearch] = useState("");
@@ -56,12 +53,6 @@ const ProjectManagementClient = () => {
 
     const [open, setOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
-
-    useEffect(() => {
-        if (!user) {
-            router.replace("/login");
-        }
-    }, [user, router]);
 
     const handleSearch = (e) => {
         setSearch(e.target.value);
@@ -77,7 +68,7 @@ const ProjectManagementClient = () => {
         },
         staleTime: 1000 * 60 * 5,
     });
-console.log(projects)
+// console.log(projects)
     /* ----------------------------- Delete Projects ---------------------------- */
     const deleteMutation = useMutation({
         mutationFn: (id) => api.delete(`/admin/projects/${id}`),

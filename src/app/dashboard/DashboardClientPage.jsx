@@ -1,19 +1,14 @@
 "use client"
 import StatsCards from '@/components/dashboard/StatsCards';
 import Spinner from '@/components/ui/Spinner';
+import withAuth from '@/wrapper/withAuth';
 import { Card, CardContent, Typography } from '@mui/material';
 import { useRouter } from 'next/navigation';
 import React, { useEffect } from 'react';
 import { useSelector } from 'react-redux';
 
 const DashboardClientPage = () => {
-    const user = useSelector((state) => state.user.user)
-    const router = useRouter()
     const status = useSelector((state)=> state.auth.status)
-    
-    useEffect(() => {
-        if (!user) router.replace("/login")
-        }, [user, router])
     
     if(status === "loading") return <Spinner />
 
@@ -36,4 +31,4 @@ const DashboardClientPage = () => {
     );
 };
 
-export default DashboardClientPage;
+export default withAuth(DashboardClientPage);

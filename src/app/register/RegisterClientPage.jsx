@@ -53,6 +53,7 @@ const RegisterClientPage = () => {
                     showConfirmButton: false,
                     timer: 1500
                 });
+                reset()
                 router.replace("/login");
             }
         } catch (err) {

@@ -1,4 +1,5 @@
 import React from 'react';
+import TeamManagementClient from './TeamManagementClient';
 
 export const metadata = {
   title: "Team Management Page",
@@ -6,11 +7,7 @@ export const metadata = {
 };
 
 const TeamManagement = () => {
-    return (
-        <div className='flex justify-center items-center mt-20'>
-            There is no data
-        </div>
-    );
+    return <TeamManagementClient />
 };
 
 export default TeamManagement;

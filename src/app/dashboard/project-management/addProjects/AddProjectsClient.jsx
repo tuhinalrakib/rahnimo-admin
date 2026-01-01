@@ -28,7 +28,13 @@ export default function AddProjectsClient() {
         defaultValues: { category: "" }
     });
 
-    const { uploadImage, image, uploading } = useCloudinaryUpload()
+    const {
+        uploadImage,
+        uploadGalleryImages,
+        galleryImages,
+        image,
+        uploading
+    } = useCloudinaryUpload()
 
     const onSubmit = async (data) => {
         try {
@@ -36,8 +42,8 @@ export default function AddProjectsClient() {
                 ...data,
                 image
             }
-            const res = api.post("/admin/projects", projectData)
-            if (res?.data?.success) {
+            const res = await api.post("/admin/projects", projectData)
+            if (res?.data) {
                 Swal.fire({
                     position: "center",
                     icon: "success",
@@ -49,7 +55,7 @@ export default function AddProjectsClient() {
                 router.push("/dashboard")
             }
         } catch (error) {
-            toast.error("❌ Failed to add product!");
+            console.error("❌ Failed to add product!");
         }
     };
 
@@ -58,8 +64,14 @@ export default function AddProjectsClient() {
         if (!file) return;
         await uploadImage(file)
     };
-    
-    if(uploading) return <Spinner />
+
+    const handleGalleryUpload = async (e) => {
+        const files = e.target.files;
+        if (!files.length) return;
+        await uploadGalleryImages(files);
+    }
+
+    if (uploading) return <Spinner />
 
     return (
         <div className="min-h-screen px-1 py-3 md:p-5 lg:p-10">
@@ -146,46 +158,71 @@ export default function AddProjectsClient() {
                         />
 
                         {/* ✅ Image Upload Field */}
-                        <div className="relative">
-                            <FaImage
-                                className="text-[#4da3d1] absolute left-1.5 top-2.5"
-                                size={22}
+                        <div>
+                            <span className="font-bold text-lg">Main Image</span>
+                            <div className="relative">
+                                <FaImage
+                                    className="text-[#4da3d1] absolute left-1.5 top-2.5"
+                                    size={22}
+                                />
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    {...register("image", { required: "Image is required" })}
+                                    onChange={handleImageUpload}
+                                    className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] text-[#a3bfc7] pl-10"
+                                />
+                                {errors.image && (
+                                    <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+                                )}
+                                {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
+                                {image && (
+                                    <Image
+                                        src={image}
+                                        width={20}
+                                        height={20}
+                                        alt="Preview"
+                                        loading="lazy"
+                                        className="w-20 h-20 rounded-full mt-2 object-cover border"
+                                    />
+                                )}
+                            </div>
+                            <input
+                                type="hidden"
+                                {...register("image", { required: "Image is required" })}
                             />
+                        </div>
+
+                        {/* ✅ Gallery Images */}
+                        <div className="">
+                            <span className="font-bold text-lg">Gallery Images</span>
+
                             <input
                                 type="file"
                                 accept="image/*"
-                                {...register("image", { required: "Image is required" })}
-                                onChange={handleImageUpload}
-                                className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] text-[#a3bfc7] pl-10"
+                                multiple
+                                onChange={handleGalleryUpload}
+                                className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] mt-2"
                             />
-                            {errors.image && (
-                                <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
-                            )}
-                            {uploading && <p className="text-sm text-gray-500">Uploading...</p>}
-                            {image && (
-                                <Image
-                                    src={image}
-                                    width={20}
-                                    height={20}
-                                    alt="Preview"
-                                    loading="lazy"
-                                    className="w-20 h-20 rounded-full mt-2 object-cover border"
-                                />
-                            )}
-                        </div>
-                        <input
-                            type="hidden"
-                            {...register("image", { required: "Image is required" })}
-                        />
 
-                        <TextField
-                            className="w-full px-4 bg-[#fcfcfc] pl-10 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-5"
-                            label="Design Style"
-                            {...register("designStyle", { required: "Design Style is required" })}
-                            error={!!errors.name}
-                            helperText={errors.name?.message}
-                            fullWidth
-                        />
+                            {galleryImages.length === 0 && (
+                                <p className="text-sm text-red-500 mt-1">At least one gallery image required</p>
+                            )}
+
+                            <div className="grid grid-cols-4 gap-3 mt-3">
+                                {galleryImages.map((img, index) => (
+                                    <Image
+                                        key={index}
+                                        src={img}
+                                        width={80}
+                                        height={80}
+                                        className="w-20 h-20 object-cover rounded border"
+                                        alt="gallery"
+                                    />
+                                ))}
+                            </div>
+                        </div>
+
 
                         {/* Description */}
                         <TextField
@@ -207,13 +244,6 @@ export default function AddProjectsClient() {
                             helperText={errors.clientReview?.message}
                             fullWidth
                         />
-
-                        {/* <Rating
-                            label="Client Review"
-                            error={!!errors.clientReview}
-                            helperText={errors.clientReview?.message}
-                            fullWidth
-                        /> */}
 
                         <div >
                             <p className="mb-1 text-sm">Client Rating</p>
@@ -257,42 +287,3 @@ export default function AddProjectsClient() {
         </div>
     );
 }
-/**
- * <form
-      onSubmit={handleSubmit}
-      className="bg-white rounded-xl shadow p-6 "
-    >
-
-      
-
-      <div className="md:col-span-2">
-        <p className="mb-1 text-sm">Client Rating</p>
-        <Rating
-          value={form.clientRating}
-          onChange={(e, val) =>
-            setForm({ ...form, clientRating: val })
-          }
-        />
-      </div>
-
-      <div className="md:col-span-2 flex items-center gap-3">
-        <input
-          type="checkbox"
-          name="featured"
-          checked={form.featured}
-          onChange={handleChange}
-        />
-        <span>Mark as Featured Project</span>
-      </div>
-
-      <div className="md:col-span-2">
-        <Button
-          variant="contained"
-          type="submit"
-          className="bg-primary w-full py-3"
-        >
-          Save Project
-        </Button>
-      </div>
-    </form>
- */
