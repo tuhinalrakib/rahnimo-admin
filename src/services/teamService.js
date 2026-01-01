@@ -11,7 +11,7 @@ export const addMember = async (payload) => {
 };
 
 export const updateMember = async (id, payload) => {
-  const { data } = await api.patch(`/admin/team"/${id}`, payload);
+  const { data } = await api.patch(`/admin/team/${id}`, payload);
   return data;
 };
 

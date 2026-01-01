@@ -48,14 +48,21 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
         },
         onSuccess: () => {
             queryClient.invalidateQueries(["team"]);
-            setOpen(false);
             setEditData(null);
             reset();
+            Swal.fire({
+                position: "center",
+                icon: "success",
+                title: "Member Create/update successful!!",
+                showConfirmButton: false,
+                timer: 1500,
+            });
+            setOpen(false);
         }
     });
 
     const onSubmit = (data) => {
-        if (!image ) {
+        if (!editData && !image) {
             Swal.fire({
                 icon: "error",
                 title: "Oops...",
@@ -73,7 +80,7 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
     };
 
     if (!open) return null;
-    // if (uploading) return <Spinner />;
+    if (uploading) return <Spinner />;
 
     return (
         <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">

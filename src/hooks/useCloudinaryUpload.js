@@ -19,7 +19,7 @@ const useCloudinaryUpload = () => {
     if (!file) return null;
 
     const options = {
-      maxSizeMB: 1,          // Max size 1MB
+      maxSizeMB: 5,          // Max size 1MB
       maxWidthOrHeight: 1920, // Max resolution
       useWebWorker: true,
     };
