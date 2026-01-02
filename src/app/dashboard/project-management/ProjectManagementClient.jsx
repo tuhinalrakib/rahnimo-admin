@@ -5,6 +5,7 @@ import Spinner from "@/components/ui/Spinner";
 import ProjectsTableSkeleton from "@/components/UiSkeleton/ProjectsTableSkeleton";
 import api from "@/utils/axiosInstance";
 import { initSocket } from "@/utils/socket";
+import withAuth from "@/wrapper/withAuth";
 import {
     Button,
     Pagination,
@@ -101,7 +102,7 @@ const ProjectManagementClient = () => {
             socket.off("project:updated");
             socket.off("project:deleted");
         };
-    }, [queryClient]);
+    }, [queryClient, token]);
 
 
     /* ----------------------------- Delete Projects ---------------------------- */
@@ -203,6 +204,7 @@ const ProjectManagementClient = () => {
                                             width={50}
                                             height={50}
                                             className="rounded"
+                                            loading="lazy"
                                         />
                                     </TableCell>
                                     <TableCell>{product.category}</TableCell>
@@ -263,4 +265,4 @@ const ProjectManagementClient = () => {
     );
 };
 
-export default ProjectManagementClient;
+export default withAuth(ProjectManagementClient);

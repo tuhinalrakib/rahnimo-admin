@@ -86,13 +86,13 @@ const TeamManagementClient = () => {
                                         className="cursor-pointer"
                                         onClick={() => { setEditData(m); setOpen(true); }}
                                     >
-                                        <FiEdit className="text-blue-500" />
+                                        <FiEdit className="text-blue-500" size={25}/>
                                     </button>
                                     <button
                                         className="cursor-pointer"
                                         onClick={() => remove(m._id)}
                                     >
-                                        <FiTrash2 className="text-red-500" />
+                                        <FiTrash2 className="text-red-500" size={25}/>
                                     </button>
                                 </td>
                             </tr>

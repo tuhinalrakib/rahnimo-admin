@@ -11,8 +11,9 @@ import Swal from "sweetalert2";
 import Spinner from "@/components/ui/Spinner";
 import { initSocket } from "@/utils/socket";
 import { useRouter } from "next/navigation";
+import withAuth from "@/wrapper/withAuth";
 
-export default function AddProjectsClient() {
+const AddProjectsClient = () => {
     const router = useRouter();
 
     const {
@@ -34,10 +35,19 @@ export default function AddProjectsClient() {
     } = useCloudinaryUpload()
 
     const onSubmit = async (data) => {
+        if (!image) {
+            Swal.fire("Error", "Main image is required!", "error");
+            return;
+        }
+
+        if (!galleryImages.length) {
+            Swal.fire("Error", "Please upload at least one gallery image!", "error");
+            return;
+        }
         try {
             const projectData = { ...data, image, galleryImages };
             const res = await api.post("/admin/projects", projectData);
-
+            console.log(projectData)
             if (res?.data) {
                 Swal.fire({
                     position: "center",
@@ -68,7 +78,7 @@ export default function AddProjectsClient() {
         await uploadGalleryImages(files);
     }
 
-    if (uploading) return <Spinner />
+    // if (uploading) return <Spinner />
 
     return (
         <div className="min-h-screen px-1 py-3 md:p-5 lg:p-10">
@@ -118,10 +128,10 @@ export default function AddProjectsClient() {
                                 <input
                                     type="file"
                                     accept="image/*"
-                                    {...register("image", { required: "Image is required" })}
                                     onChange={handleImageUpload}
                                     className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] text-[#a3bfc7] pl-10"
                                 />
+
                                 {image && <Image src={image} width={50} height={50} alt="Preview" className="rounded mt-2" />}
                             </div>
                         </div>
@@ -138,7 +148,14 @@ export default function AddProjectsClient() {
                             />
                             <div className="grid grid-cols-4 gap-3 mt-3">
                                 {galleryImages.map((img, idx) => (
-                                    <Image key={idx} src={img} width={80} height={80} alt="gallery" className="rounded border" />
+                                    <Image
+                                        key={idx}
+                                        src={img}
+                                        width={80}
+                                        height={80} alt="gallery"
+                                        className="rounded border"
+                                        loading="lazy"
+                                    />
                                 ))}
                             </div>
                         </div>
@@ -184,3 +201,5 @@ export default function AddProjectsClient() {
         </div>
     );
 }
+
+export default withAuth(AddProjectsClient)

@@ -145,6 +145,7 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
                                 width={80}
                                 height={80}
                                 alt="Preview"
+                                loading="lazy"
                                 className="w-20 h-20 rounded-full mt-2 object-cover border"
                             />
                         )}
