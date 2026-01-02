@@ -3,20 +3,21 @@
 import Spinner from "@/components/ui/Spinner";
 import ProjectsTableSkeleton from "@/components/UiSkeleton/ProjectsTableSkeleton";
 import api from "@/utils/axiosInstance";
-import { 
-    Button, 
-    Pagination, 
-    Paper, 
-    Stack, 
-    styled, 
-    Table, 
-    TableBody, 
-    TableCell, 
-    tableCellClasses, 
-    TableContainer, 
-    TableHead, 
-    TableRow, 
-    TextField 
+import { initSocket } from "@/utils/socket";
+import {
+    Button,
+    Pagination,
+    Paper,
+    Stack,
+    styled,
+    Table,
+    TableBody,
+    TableCell,
+    tableCellClasses,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TextField
 } from "@mui/material";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
@@ -24,6 +25,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import { MdAddCircleOutline } from "react-icons/md";
+import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
 /* -------------------------------- Styles -------------------------------- */
@@ -46,6 +48,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 const ProjectManagementClient = () => {
     const queryClient = useQueryClient();
     const router = useRouter();
+    const token = useSelector((state) => state.auth.accessToken)
 
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
@@ -68,7 +71,37 @@ const ProjectManagementClient = () => {
         },
         staleTime: 1000 * 60 * 5,
     });
-// console.log(projects)
+
+    useEffect(() => {
+        const socket = initSocket(localStorage.getItem("accessToken"));
+
+        // Add new project
+        socket.on("project:created", (project) => {
+            queryClient.setQueryData(["projects"], (old = []) => [project, ...old]);
+        });
+
+        // Update project
+        socket.on("project:updated", (updated) => {
+            queryClient.setQueryData(["projects"], (old = []) =>
+                old.map((p) => (p._id === updated._id ? updated : p))
+            );
+        });
+
+        // Delete project
+        socket.on("project:deleted", (id) => {
+            queryClient.setQueryData(["projects"], (old = []) =>
+                old.filter((p) => p._id !== id)
+            );
+        });
+
+        return () => {
+            socket.off("project:created");
+            socket.off("project:updated");
+            socket.off("project:deleted");
+        };
+    }, [queryClient]);
+
+
     /* ----------------------------- Delete Projects ---------------------------- */
     const deleteMutation = useMutation({
         mutationFn: (id) => api.delete(`/admin/projects/${id}`),

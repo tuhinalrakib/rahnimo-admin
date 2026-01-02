@@ -25,6 +25,8 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
     } = useForm();
 
     useEffect(() => {
+        if (!open) return;
+
         if (editData) {
             reset({
                 name: editData.name,
@@ -32,8 +34,16 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
                 description: editData.description,
                 image: ""
             });
+        } else {
+            reset({
+                name: "",
+                designation: "",
+                description: "",
+                image: ""
+            });
         }
-    }, [editData, reset]);
+    }, [open, editData, reset]);
+
 
     const handleImageUpload = async (e) => {
         const file = e.target.files[0];
@@ -70,6 +80,7 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
             })
             return;
         }
+
         const payload = {
             name: data.name,
             designation: data.designation,
@@ -140,9 +151,22 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
                     </div>
 
                     <div className="flex justify-end gap-3">
-                        <Button variant="outlined" onClick={() => setOpen(false)}>
+                        <Button
+                            variant="outlined"
+                            onClick={() => {
+                                setOpen(false);
+                                setEditData(null);
+                                reset({
+                                    name: "",
+                                    designation: "",
+                                    description: "",
+                                    image: ""
+                                });
+                            }}
+                        >
                             Cancel
                         </Button>
+
                         <Button
                             type="submit"
                             variant="contained"

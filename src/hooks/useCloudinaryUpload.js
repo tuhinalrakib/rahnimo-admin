@@ -19,7 +19,7 @@ const useCloudinaryUpload = () => {
     if (!file) return null;
 
     const options = {
-      maxSizeMB: 5,          // Max size 1MB
+      maxSizeMB: 2,          // Max size 1MB
       maxWidthOrHeight: 1920, // Max resolution
       useWebWorker: true,
     };
@@ -55,7 +55,7 @@ const useCloudinaryUpload = () => {
     return url;
   };
 
-  const uploadGalleryImage = async (files) => {
+  const uploadGalleryImages = async (files) => {
     if (!files || !files.length) return null;
     setUploading(true);
     const urls = [];
@@ -73,7 +73,7 @@ const useCloudinaryUpload = () => {
     image,
     setImage,
     galleryImages,
-    uploadGalleryImage,
+    uploadGalleryImages,
     uploading,
   };
 };
