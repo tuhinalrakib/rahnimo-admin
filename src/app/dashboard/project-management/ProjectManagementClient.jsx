@@ -1,5 +1,6 @@
 "use client";
 
+import UpdateProjectModal from "@/components/dashboard/UpdateProjectModal";
 import Spinner from "@/components/ui/Spinner";
 import ProjectsTableSkeleton from "@/components/UiSkeleton/ProjectsTableSkeleton";
 import api from "@/utils/axiosInstance";
@@ -73,7 +74,8 @@ const ProjectManagementClient = () => {
     });
 
     useEffect(() => {
-        const socket = initSocket(localStorage.getItem("accessToken"));
+        if (!token) return;
+        const socket = initSocket(token);
 
         // Add new project
         socket.on("project:created", (project) => {
@@ -249,14 +251,14 @@ const ProjectManagementClient = () => {
             )}
 
             {/* Update Modal (Uncomment if using) */}
-            {/* <UpdateProductModal
+             <UpdateProjectModal
                 open={open}
                 closeModal={() => setOpen(false)}
                 product={selectedProduct}
                 refetch={() =>
                     queryClient.invalidateQueries({ queryKey: ["projects"] })
                 }
-            /> */}
+            /> 
         </div>
     );
 };
