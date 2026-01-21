@@ -15,6 +15,7 @@ import useCloudinaryUpload from "@/hooks/useCloudinaryUpload";
 import Image from "next/image";
 import api from "@/utils/axiosInstance";
 import Swal from "sweetalert2";
+import Spinner from "../ui/Spinner";
 
 const UpdateProjectModal = ({ open, closeModal, product }) => {
   const {
@@ -27,6 +28,7 @@ const UpdateProjectModal = ({ open, closeModal, product }) => {
 
   const {
     uploadImage,
+    uploading,
     uploadGalleryImages,
     galleryImages,
     image,
@@ -40,22 +42,35 @@ const UpdateProjectModal = ({ open, closeModal, product }) => {
 
   const onSubmit = async (data) => {
     try {
+      if (uploading) {
+        Swal.fire({
+          icon: "error",
+          title: "Wait...",
+          text: "Image didn't upload yet!",
+        });
+        return;
+      }
+      const mergedGalleryImages = [
+        ...(product.galleryImages || []),
+        ...(galleryImages || [])
+      ];
+
       const updatedData = {
         ...data,
         image: image || product.image,
-        galleryImages: galleryImages.length ? galleryImages : product.galleryImages,
+        galleryImages: mergedGalleryImages
       };
 
-      await api.patch(`/admin/projects/${product._id}`, updatedData);
-
-      Swal.fire({
-        icon: "success",
-        title: "Project Updated!",
-        timer: 1200,
-        showConfirmButton: false,
-      });
-
-      closeModal();
+      const res = await api.patch(`/admin/projects/${product._id}`, updatedData);
+      if (res.data) {
+        Swal.fire({
+          icon: "success",
+          title: "Project Updated!",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+        closeModal();
+      }
     } catch (err) {
       console.error(err);
       Swal.fire("Error", "Project update failed", "error");
@@ -78,22 +93,23 @@ const UpdateProjectModal = ({ open, closeModal, product }) => {
 
           {/* Main Image */}
           <div className="col-span-2">
-            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0])} className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] mt-2"/>
+            <input type="file" accept="image/*" onChange={e => uploadImage(e.target.files[0])} className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] mt-2" />
             <div className="mt-2 flex gap-2">
               {(image || product.image) && (
-                <Image src={image || product.image} width={70} height={70} alt="preview" loading="lazy"/>
+                <Image src={image || product.image} width={70} height={70} alt="preview" loading="lazy" />
               )}
             </div>
           </div>
 
           {/* Gallery Images */}
           <div className="col-span-2">
-            <input type="file" multiple accept="image/*" onChange={e => uploadGalleryImages(e.target.files)} className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] mt-2"/>
+            <input type="file" multiple accept="image/*" onChange={e => uploadGalleryImages(e.target.files)} className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] mt-2" />
             <div className="flex gap-2 mt-2 flex-wrap">
-              {(galleryImages.length ? galleryImages : product.galleryImages)?.map((img, i) => (
-                <Image key={i} src={img} width={60} height={60} alt="g" loading="lazy"/>
+              {[...(product.galleryImages || []), ...(galleryImages || [])].map((img, i) => (
+                <Image key={i} src={img} width={60} height={60} alt="g" loading="lazy" />
               ))}
             </div>
+
           </div>
 
           <TextField

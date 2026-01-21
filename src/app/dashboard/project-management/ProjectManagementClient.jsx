@@ -26,7 +26,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useMemo, useState } from "react";
-import { MdAddCircleOutline } from "react-icons/md";
+import { MdAddCircleOutline, MdDelete } from "react-icons/md";
 import { useSelector } from "react-redux";
 import Swal from "sweetalert2";
 
@@ -73,7 +73,7 @@ const ProjectManagementClient = () => {
         },
         staleTime: 1000 * 60 * 5,
     });
-
+    console.log(projects)
     useEffect(() => {
         if (!token) return;
         const socket = initSocket(token);
@@ -144,6 +144,26 @@ const ProjectManagementClient = () => {
         return filteredProjects.slice(start, end);
     }, [filteredProjects, page]);
 
+    /* ----------------------------- Delete Gallery Images ---------------------------- */
+    const handleDeleteGalleryImage = (projectId, imageUrl) => {
+        Swal.fire({
+            title: "Are you sure?",
+            text: "This action cannot be undone.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonText: "Yes, delete",
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                const res = await api.patch(`/admin/projects/${projectId}/remove-gallery-image`, imageUrl)
+                if (res.data) {
+                    Swal.fire("Deleted!", "Gallery image removed.", "success");
+
+                    queryClient.invalidateQueries({ queryKey: ["projects"] });
+                }
+            }
+        });
+    }
+
     /* -------------------------------- Render -------------------------------- */
 
     if (isLoading) return <ProjectsTableSkeleton rows={8} />;
@@ -180,6 +200,7 @@ const ProjectManagementClient = () => {
                             <StyledTableCell>Category</StyledTableCell>
                             <StyledTableCell>Location</StyledTableCell>
                             <StyledTableCell>Area Size</StyledTableCell>
+                            <StyledTableCell>Gallery Images</StyledTableCell>
                             <StyledTableCell align="center">Actions</StyledTableCell>
                         </TableRow>
                     </TableHead>
@@ -194,22 +215,45 @@ const ProjectManagementClient = () => {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            paginatedProjects.map((product) => (
-                                <StyledTableRow key={product._id}>
-                                    <TableCell>{product.projectTitle}</TableCell>
+                            paginatedProjects.map((project) => (
+                                <StyledTableRow key={project._id}>
+                                    <TableCell>{project.projectTitle}</TableCell>
                                     <TableCell>
                                         <Image
-                                            src={product.image}
-                                            alt={product.name || "logo"}
+                                            src={project.image}
+                                            alt={project.name || "logo"}
                                             width={50}
                                             height={50}
                                             className="rounded"
                                             loading="lazy"
                                         />
                                     </TableCell>
-                                    <TableCell>{product.category}</TableCell>
-                                    <TableCell>{product.location}</TableCell>
-                                    <TableCell>{product.areaSize}</TableCell>
+                                    <TableCell>{project.category}</TableCell>
+                                    <TableCell>{project.location}</TableCell>
+                                    <TableCell>{project.areaSize}</TableCell>
+                                    <TableCell>
+                                        <div className="flex ">
+                                            {project?.galleryImages?.map((img, i) =>
+                                                <div key={i} className="flex flex-col items-center">
+                                                    <Image
+                                                        
+                                                        src={img}
+                                                        width={30}
+                                                        height={30}
+                                                        alt="gallery"
+                                                        className="rounded w-10 h-10"
+                                                        loading="lazy"
+                                                    />
+                                                    <Button
+                                                        color="error"
+                                                        onClick={()=>handleDeleteGalleryImage(project._id,img)}
+                                                    >
+                                                        <MdDelete size={20} />
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </TableCell>
                                     <TableCell align="center">
                                         <div className="flex justify-center gap-3">
                                             <Button
@@ -253,14 +297,14 @@ const ProjectManagementClient = () => {
             )}
 
             {/* Update Modal (Uncomment if using) */}
-             <UpdateProjectModal
+            <UpdateProjectModal
                 open={open}
                 closeModal={() => setOpen(false)}
                 product={selectedProduct}
                 refetch={() =>
                     queryClient.invalidateQueries({ queryKey: ["projects"] })
                 }
-            /> 
+            />
         </div>
     );
 };
