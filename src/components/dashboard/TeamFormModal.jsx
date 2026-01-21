@@ -137,7 +137,7 @@ export default function TeamFormModal({ open, setOpen, editData, setEditData }) 
                             accept="image/*"
                             {...register("image")}
                             onChange={handleImageUpload}
-                            className="w-full pl-10 px-3 py-2 border rounded-md cursor-pointer"
+                            className="w-full pl-10 px-3 py-2 border rounded-md "
                         />
                         {(image || editData?.image) && (
                             <Image

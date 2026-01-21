@@ -141,7 +141,7 @@ const LoginClientPage = () => {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute cursor-pointer right-1.5 top-2"
+                                className="absolute  right-1.5 top-2"
                             >
                                 {showPassword ?
                                     <FaEye size={24} className="text-fuchsia-700" />
@@ -163,6 +163,9 @@ const LoginClientPage = () => {
                         loadingPosition="start"
                         startIcon={<SaveIcon />}
                         variant="contained"
+                        sx={{
+                            cursor: "url('/logo2.svg') 16 16, auto"
+                        }}
                     >
                         {isSubmitting ? "Login..." : "Login"}
                     </Button>

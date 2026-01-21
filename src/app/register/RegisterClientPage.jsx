@@ -130,7 +130,7 @@ const RegisterClientPage = () => {
                             accept="image/*"
                             {...register("image", { required: "Image is required" })}
                             onChange={handleImageUpload}
-                            className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] text-black/70 cursor-pointer pl-10"
+                            className="w-full px-4 py-2 border rounded-md bg-[#fcfcfc] text-black/70  pl-10"
                         />
                         {errors.image && (
                             <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
@@ -176,7 +176,7 @@ const RegisterClientPage = () => {
                             <button
                                 type="button"
                                 onClick={() => setShowPassword(!showPassword)}
-                                className="absolute cursor-pointer right-1.5 top-2"
+                                className="absolute  right-1.5 top-2"
                             >
                                 {showPassword ?
                                     <FaEye size={24} className="text-[#4da3d1]" />
@@ -192,7 +192,7 @@ const RegisterClientPage = () => {
                     <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full py-2 cursor-pointer bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition"
+                        className="w-full py-2  bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition"
                     >
                         {isSubmitting ? "Registering..." : "Register"}
                     </button>

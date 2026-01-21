@@ -83,13 +83,13 @@ const TeamManagementClient = () => {
                                 <td className="max-w-xs truncate">{m.description}</td>
                                 <td className="flex justify-end gap-2">
                                     <button
-                                        className="cursor-pointer"
+                                        className=""
                                         onClick={() => { setEditData(m); setOpen(true); }}
                                     >
                                         <FiEdit className="text-blue-500" size={25}/>
                                     </button>
                                     <button
-                                        className="cursor-pointer"
+                                        className=""
                                         onClick={() => remove(m._id)}
                                     >
                                         <FiTrash2 className="text-red-500" size={25}/>
