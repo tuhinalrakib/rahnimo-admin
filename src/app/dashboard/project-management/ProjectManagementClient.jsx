@@ -2,6 +2,7 @@
 
 import UpdateProjectModal from "@/components/dashboard/UpdateProjectModal";
 import Spinner from "@/components/ui/Spinner";
+import CardSkeleton from "@/components/UiSkeleton/CardSkeleton";
 import ProjectsTableSkeleton from "@/components/UiSkeleton/ProjectsTableSkeleton";
 import api from "@/utils/axiosInstance";
 import { initSocket } from "@/utils/socket";
@@ -21,7 +22,7 @@ import {
     TableRow,
     TextField
 } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -48,9 +49,10 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 /* -------------------------------- Component -------------------------------- */
 
 const ProjectManagementClient = () => {
-    const queryClient = useQueryClient();
-    const router = useRouter();
+    const [projects, setProjects] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
     const token = useSelector((state) => state.auth.accessToken)
+    const socket = initSocket(token);
 
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
@@ -64,35 +66,30 @@ const ProjectManagementClient = () => {
         setPage(1);
     };
 
-    /* ----------------------------- Fetch Projects ---------------------------- */
-    const { data: projects = [], isLoading, isError } = useQuery({
-        queryKey: ["projects"],
-        queryFn: async () => {
-            const res = await api.get("/admin/projects");
-            return res.data;
-        },
-        staleTime: 1000 * 60 * 5,
-    });
-    console.log(projects)
     useEffect(() => {
         if (!token) return;
         const socket = initSocket(token);
 
-        // Add new project
+        socket.emit("get-projects")
+
+        socket.on("projects", (projects) => {
+            setProjects(projects)
+        })
+
         socket.on("project:created", (project) => {
-            queryClient.setQueryData(["projects"], (old = []) => [project, ...old]);
+            setProjects((old = []) => [project, ...old]);
         });
 
-        // Update project
+
         socket.on("project:updated", (updated) => {
-            queryClient.setQueryData(["projects"], (old = []) =>
+            setProjects((old = []) =>
                 old.map((p) => (p._id === updated._id ? updated : p))
             );
         });
 
-        // Delete project
+
         socket.on("project:deleted", (id) => {
-            queryClient.setQueryData(["projects"], (old = []) =>
+            setProjects((old = []) =>
                 old.filter((p) => p._id !== id)
             );
         });
@@ -102,14 +99,23 @@ const ProjectManagementClient = () => {
             socket.off("project:updated");
             socket.off("project:deleted");
         };
-    }, [queryClient, token]);
+    }, [token]);
 
+    useEffect(() => {
+        setTimeout(() => {
+            if (!projects) {
+                setIsLoading(true)
+            }else{
+                setIsLoading(false)
+            }
+        }, 300)
+    }, [projects])
 
     /* ----------------------------- Delete Projects ---------------------------- */
     const deleteMutation = useMutation({
         mutationFn: (id) => api.delete(`/admin/projects/${id}`),
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["projects"] });
+        onSuccess: (_, id) => {
+            setProjects((prev) => prev.filter((p) => p._id !== id));
             Swal.fire("Deleted!", "Product has been removed.", "success");
         },
         onError: () => {
@@ -154,20 +160,23 @@ const ProjectManagementClient = () => {
             confirmButtonText: "Yes, delete",
         }).then(async (result) => {
             if (result.isConfirmed) {
-                const res = await api.patch(`/admin/projects/${projectId}/remove-gallery-image`, imageUrl)
-                if (res.data) {
-                    Swal.fire("Deleted!", "Gallery image removed.", "success");
+                socket.emit(
+                    "project:gallery:remove",
+                    { projectId, imageUrl },
+                    (res) => {
+                        if (res.success) {
+                            Swal.fire("Deleted!", "Gallery image removed.", "success");
+                        } else {
+                            Swal.fire("Error!", res.message || "Failed", "error");
+                        }
+                    }
+                );
 
-                    queryClient.invalidateQueries({ queryKey: ["projects"] });
-                }
             }
         });
-    }
+    };
 
-    /* -------------------------------- Render -------------------------------- */
-
-    if (isLoading) return <ProjectsTableSkeleton rows={8} />;
-    if (isError) return <p className="text-red-500">Failed to load projects</p>;
+    if (isLoading) return <CardSkeleton />
 
     return (
         <div className="space-y-6 mt-10">
@@ -236,7 +245,7 @@ const ProjectManagementClient = () => {
                                             {project?.galleryImages?.map((img, i) =>
                                                 <div key={i} className="flex flex-col items-center">
                                                     <Image
-                                                        
+
                                                         src={img}
                                                         width={30}
                                                         height={30}
@@ -246,7 +255,7 @@ const ProjectManagementClient = () => {
                                                     />
                                                     <Button
                                                         color="error"
-                                                        onClick={()=>handleDeleteGalleryImage(project._id,img)}
+                                                        onClick={() => handleDeleteGalleryImage(project._id, img)}
                                                     >
                                                         <MdDelete size={20} />
                                                     </Button>
@@ -261,7 +270,7 @@ const ProjectManagementClient = () => {
                                                 color="secondary"
                                                 size="small"
                                                 onClick={() => {
-                                                    setSelectedProduct(product);
+                                                    setSelectedProduct(project);
                                                     setOpen(true);
                                                 }}
                                             >
@@ -301,9 +310,6 @@ const ProjectManagementClient = () => {
                 open={open}
                 closeModal={() => setOpen(false)}
                 product={selectedProduct}
-                refetch={() =>
-                    queryClient.invalidateQueries({ queryKey: ["projects"] })
-                }
             />
         </div>
     );
