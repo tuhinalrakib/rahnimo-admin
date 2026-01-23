@@ -11,13 +11,14 @@ import { useSelector } from "react-redux";
 const TeamManagementClient = () => {
     const [open, setOpen] = useState(false);
     const [editData, setEditData] = useState(null);
+    const [members, setMembers] = useState([])
     const queryClient = useQueryClient();
     const token = useSelector((state) => state.auth.accessToken)
 
-    const { data: members = [] } = useQuery({
-        queryKey: ["team"],
-        queryFn: getTeamMembers
-    });
+    // const { data: members = [] } = useQuery({
+    //     queryKey: ["team"],
+    //     queryFn: getTeamMembers
+    // });
 
     // DELETE API (socket will update UI)
     const { mutate: remove } = useMutation({
@@ -29,18 +30,24 @@ const TeamManagementClient = () => {
         if (!token) return;
         const socket = initSocket(token);
 
+        socket.emit("get-teams")
+
+        socket.on("teams", (teams)=>{
+            setMembers(teams)
+        })
+
         socket.on("team:created", (member) => {
-            queryClient.setQueryData(["team"], (old = []) => [member, ...old]);
+            setMembers((old = []) => [member, ...old]);
         });
 
         socket.on("team:updated", (updated) => {
-            queryClient.setQueryData(["team"], (old = []) =>
+            setMembers((old = []) =>
                 old.map((m) => (m._id === updated._id ? updated : m))
             );
         });
 
         socket.on("team:deleted", (id) => {
-            queryClient.setQueryData(["team"], (old = []) =>
+            setMembers((old = []) =>
                 old.filter((m) => m._id !== id)
             );
         });
@@ -50,7 +57,7 @@ const TeamManagementClient = () => {
             socket.off("team:updated");
             socket.off("team:deleted");
         };
-    }, [queryClient, token]);
+    }, [token]);
 
     return (
         <div className="p-6 bg-white rounded-2xl shadow-md">
